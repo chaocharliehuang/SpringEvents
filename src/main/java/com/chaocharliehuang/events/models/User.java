@@ -1,14 +1,20 @@
 package com.chaocharliehuang.events.models;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.JoinColumn;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
@@ -41,6 +47,17 @@ public class User {
 	
 	@Transient
 	private String passwordConfirmation;
+	
+	@OneToMany(mappedBy="host", fetch=FetchType.LAZY)
+	private List<Event> eventsCreated;
+	
+	@ManyToMany(fetch=FetchType.LAZY)
+	@JoinTable(
+			name = "events_attendees",
+			joinColumns = @JoinColumn(name = "user_id"),
+			inverseJoinColumns = @JoinColumn(name = "event_id")
+	)
+	private List<Event> eventsAttending;
 	
 	@DateTimeFormat(pattern = "MM/dd/yyy HH:mm:ss")
 	private Date createdAt;
@@ -122,6 +139,22 @@ public class User {
 
 	public void setPasswordConfirmation(String passwordConfirmation) {
 		this.passwordConfirmation = passwordConfirmation;
+	}
+
+	public List<Event> getEventsCreated() {
+		return eventsCreated;
+	}
+
+	public void setEventsCreated(List<Event> eventsCreated) {
+		this.eventsCreated = eventsCreated;
+	}
+
+	public List<Event> getEventsAttending() {
+		return eventsAttending;
+	}
+
+	public void setEventsAttending(List<Event> eventsAttending) {
+		this.eventsAttending = eventsAttending;
 	}
 
 	public Date getCreatedAt() {
