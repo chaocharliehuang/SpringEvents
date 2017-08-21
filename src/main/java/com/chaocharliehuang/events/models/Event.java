@@ -3,6 +3,7 @@ package com.chaocharliehuang.events.models;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -11,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -48,6 +50,9 @@ public class Event {
 			inverseJoinColumns = @JoinColumn(name = "user_id")
 	)
 	private List<User> attendees;
+	
+	@OneToMany(mappedBy="event", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+	private List<Comment> comments;
 	
 	@DateTimeFormat(pattern = "MM/dd/yyy HH:mm:ss")
 	private Date createdAt;
@@ -118,6 +123,14 @@ public class Event {
 
 	public void setAttendees(List<User> attendees) {
 		this.attendees = attendees;
+	}
+
+	public List<Comment> getComments() {
+		return comments;
+	}
+
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
 	}
 
 	public Date getCreatedAt() {

@@ -60,6 +60,9 @@ public class User {
 	)
 	private List<Event> eventsAttending;
 	
+	@OneToMany(mappedBy="author", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+	private List<Comment> comments;
+	
 	@DateTimeFormat(pattern = "MM/dd/yyy HH:mm:ss")
 	private Date createdAt;
 	
@@ -156,6 +159,14 @@ public class User {
 
 	public void setEventsAttending(List<Event> eventsAttending) {
 		this.eventsAttending = eventsAttending;
+	}
+
+	public List<Comment> getComments() {
+		return comments;
+	}
+
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
 	}
 
 	public Date getCreatedAt() {

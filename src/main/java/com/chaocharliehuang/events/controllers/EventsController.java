@@ -23,14 +23,16 @@ public class EventsController {
 	
 	private UserService userService;
 	private EventService eventService;
+	private CommentService commentService;
 	private UserValidator userValidator;
 	private EventValidator eventValidator;
 	
 	public EventsController(
-			UserService userService, EventService eventService, 
+			UserService userService, EventService eventService, CommentService commentService,
 			UserValidator userValidator, EventValidator eventValidator) {
 		this.userService = userService;
 		this.eventService = eventService;
+		this.commentService = commentService;
 		this.userValidator = userValidator;
 		this.eventValidator = eventValidator;
 	}
@@ -102,9 +104,31 @@ public class EventsController {
 	}
 	
 	@GetMapping("/events/{id}")
-	public String eventPage(@PathVariable("id") Long id, Model model) {
-		model.addAttribute("event", eventService.findEventById(id));
+	public String eventPage(
+			@PathVariable("id") Long id, Model model,
+			@Valid @ModelAttribute("comment") Comment comment) {
+		Event event = eventService.findEventById(id);
+		model.addAttribute("event", event);
+		model.addAttribute("comments", commentService.findCommentsOfEvent(event));
 		return "eventPage.jsp";
+	}
+	
+	@PostMapping("/events/{id}/newcomment")
+	public String newComment(
+			@PathVariable("id") Long id, Model model, Principal principal,
+			@Valid @ModelAttribute("comment") Comment comment, BindingResult result) {
+		Event event = eventService.findEventById(id);
+		model.addAttribute("event", event);
+		model.addAttribute("comments", commentService.findCommentsOfEvent(event));
+		if (result.hasErrors()) {
+			return "eventPage.jsp";
+		} else {
+			User currentUser = userService.findByUsername(principal.getName());
+			comment.setAuthor(currentUser);
+			comment.setEvent(event);
+			commentService.createComment(comment);
+			return "redirect:/events/" + id;
+		}
 	}
 	
 	@GetMapping("/events/{id}/join")
