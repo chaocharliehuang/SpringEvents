@@ -52,15 +52,17 @@
 					<td>
 						<c:choose>
 							<c:when test="${event.host == currentUser}">
-							Edit | Delete
+							<a href="/events/${event.id}/edit">Edit</a> | 
+							Delete
 							</c:when>
 							<c:otherwise>
 								<c:choose>
 									<c:when test="${event.attendees.contains(currentUser)}">
-										Joining | Cancel
+										Joined | 
+										<a href="/events/${event.id}/cancel">Cancel</a>
 									</c:when>
 									<c:otherwise>
-										Join
+										<a href="/events/${event.id}/join">Join</a>
 									</c:otherwise>
 								</c:choose>
 							</c:otherwise>
@@ -84,7 +86,7 @@
 			</tr>
 			<c:forEach items="${eventsOutOfState}" var="event">
 				<tr>
-					<td>${event.name}</td>
+					<td><a href="/events/${event.id}">${event.name}</a></td>
 					<td><fmt:formatDate pattern="MMMM dd, yyyy" value="${event.date}"/></td>
 					<td>${event.city}</td>
 					<td>${event.state}</td>

@@ -68,8 +68,7 @@ public class EventsController {
 	public String allEvents(
 			Principal principal, Model model,
 			@Valid @ModelAttribute("event") Event event) {
-		String username = principal.getName();
-		User currentUser = userService.findByUsername(username);
+		User currentUser = userService.findByUsername(principal.getName());
 		model.addAttribute("currentUser", currentUser);
 		
 		model.addAttribute("eventsInState", eventService.findEventsByState(currentUser.getState()));
@@ -84,9 +83,10 @@ public class EventsController {
 	public String createEvent(
 			@Valid @ModelAttribute("event") Event event, BindingResult result,
 			Principal principal, Model model) {
-		String username = principal.getName();
-		User currentUser = userService.findByUsername(username);
-		model.addAttribute("currentUser", currentUser);
+		User currentUser = userService.findByUsername(principal.getName());
+		
+		model.addAttribute("eventsInState", eventService.findEventsByState(currentUser.getState()));
+		model.addAttribute("eventsOutOfState", eventService.findEventsNotInState(currentUser.getState()));
 		
 		String[] states = {"CA", "IL", "NY", "WA"};
 		model.addAttribute("states", states);
@@ -105,6 +105,67 @@ public class EventsController {
 	public String eventPage(@PathVariable("id") Long id, Model model) {
 		model.addAttribute("event", eventService.findEventById(id));
 		return "eventPage.jsp";
+	}
+	
+	@GetMapping("/events/{id}/join")
+	public String joinEvent(@PathVariable("id") Long id, Principal principal) {
+		User currentUser = userService.findByUsername(principal.getName());
+		Event event = eventService.findEventById(id);
+		if (event.getHost() != currentUser) {
+			List<User> attendees = event.getAttendees();
+			attendees.add(currentUser);
+			event.setAttendees(attendees);
+			eventService.createEvent(event);
+		}
+		return "redirect:/events";
+	}
+	
+	@GetMapping("/events/{id}/cancel")
+	public String unjoinEvent(@PathVariable("id") Long id, Principal principal) {
+		User currentUser = userService.findByUsername(principal.getName());
+		Event event = eventService.findEventById(id);
+		if (event.getHost() != currentUser) {
+			List<User> attendees = event.getAttendees();
+			attendees.remove(currentUser);
+			event.setAttendees(attendees);
+			eventService.createEvent(event);
+		}
+		return "redirect:/events";
+	}
+	
+	@GetMapping("/events/{id}/edit")
+	public String editEvent(
+			@PathVariable("id") Long id, Principal principal, Model model) {
+		User currentUser = userService.findByUsername(principal.getName());
+		Event event = eventService.findEventById(id);
+		if (event.getHost() != currentUser) {
+			return "redirect:/events";
+		} else {
+			String[] states = {"CA", "IL", "NY", "WA"};
+			model.addAttribute("states", states);
+			model.addAttribute("event", event);
+			return "editEvent.jsp";
+		}
+	}
+	
+	@PostMapping("/events/{id}/edit")
+	public String updateEvent(
+			@PathVariable("id") Long id, Model model,
+			@Valid @ModelAttribute("event") Event event, BindingResult result) {
+		String[] states = {"CA", "IL", "NY", "WA"};
+		model.addAttribute("states", states);
+		eventValidator.validate(event, result);
+		if (result.hasErrors()) {
+			return "editEvent.jsp";
+		} else {
+			Event currentEvent = eventService.findEventById(id);
+			currentEvent.setName(event.getName());
+			currentEvent.setDate(event.getDate());
+			currentEvent.setCity(event.getCity());
+			currentEvent.setState(event.getState());
+			eventService.createEvent(currentEvent);
+			return "redirect:/events/" + id;
+		}
 	}
 
 }
