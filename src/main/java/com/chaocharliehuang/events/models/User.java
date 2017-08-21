@@ -3,6 +3,7 @@ package com.chaocharliehuang.events.models;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -48,7 +49,7 @@ public class User {
 	@Transient
 	private String passwordConfirmation;
 	
-	@OneToMany(mappedBy="host", fetch=FetchType.LAZY)
+	@OneToMany(mappedBy="host", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	private List<Event> eventsCreated;
 	
 	@ManyToMany(fetch=FetchType.LAZY)

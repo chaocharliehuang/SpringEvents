@@ -29,5 +29,6 @@
         </p>
         <input type="submit" value="Update Event"/>
     </form:form>
+    <p><a href="/events/${event.id}/delete">Delete event</a></p>
 </body>
 </html>

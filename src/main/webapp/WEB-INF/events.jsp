@@ -52,8 +52,8 @@
 					<td>
 						<c:choose>
 							<c:when test="${event.host == currentUser}">
-							<a href="/events/${event.id}/edit">Edit</a> | 
-							Delete
+								<a href="/events/${event.id}/edit">Edit</a> | 
+								<a href="/events/${event.id}/delete">Delete</a>
 							</c:when>
 							<c:otherwise>
 								<c:choose>
@@ -91,7 +91,25 @@
 					<td>${event.city}</td>
 					<td>${event.state}</td>
 					<td>${event.host.firstName}</td>
-					<td>Join</td>
+					<td>
+						<c:choose>
+							<c:when test="${event.host == currentUser}">
+								<a href="/events/${event.id}/edit">Edit</a> | 
+								<a href="/events/${event.id}/delete">Delete</a>
+							</c:when>
+							<c:otherwise>
+								<c:choose>
+									<c:when test="${event.attendees.contains(currentUser)}">
+										Joined | 
+										<a href="/events/${event.id}/cancel">Cancel</a>
+									</c:when>
+									<c:otherwise>
+										<a href="/events/${event.id}/join">Join</a>
+									</c:otherwise>
+								</c:choose>
+							</c:otherwise>
+						</c:choose>
+					</td>
 				</tr>
 			</c:forEach>
 		</table>

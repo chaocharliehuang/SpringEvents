@@ -138,7 +138,7 @@ public class EventsController {
 			@PathVariable("id") Long id, Principal principal, Model model) {
 		User currentUser = userService.findByUsername(principal.getName());
 		Event event = eventService.findEventById(id);
-		if (event.getHost() != currentUser) {
+		if (event.getHost() != currentUser || event == null) {
 			return "redirect:/events";
 		} else {
 			String[] states = {"CA", "IL", "NY", "WA"};
@@ -167,5 +167,14 @@ public class EventsController {
 			return "redirect:/events/" + id;
 		}
 	}
-
+	
+	@GetMapping("/events/{id}/delete")
+	public String deleteEvent(@PathVariable("id") Long id, Principal principal, Model model) {
+		User currentUser = userService.findByUsername(principal.getName());
+		Event event = eventService.findEventById(id);
+		if (event.getHost() == currentUser && event != null) {
+			eventService.deleteEvent(id);
+		}
+		return "redirect:/events";
+	}
 }
